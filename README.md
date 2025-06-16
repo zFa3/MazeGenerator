@@ -8,8 +8,8 @@ size
 cell_size  
 
 # Prerequisites
-PIL - https://pypi.org/project/pillow/
-pip install pillow
+PIL - https://pypi.org/project/pillow/  
+pip install pillow  
   
 # Exemplars
 ![Screenshot 2025-06-15 at 8 24 15 PM](https://github.com/user-attachments/assets/0d8aadcd-bce4-405b-9693-b4a39e6555f8)
