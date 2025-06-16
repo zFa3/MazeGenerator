@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+# Jayden W
+
+# import libs
 import random
 import PIL.Image
 
@@ -15,23 +19,24 @@ generates some % of the maze, in case it takes too long
 100 for full maze generation
 '''
 fast_gen = 100
+# color theme
+dark_mode = True
+
+'''
+dimensions and cell sizes
+all measured in pixels
+'''
+size = 100
+cell_size = 3
 
 # colors
-if input(r"dark mode? (y\n)").lower() == "n":
+if not dark_mode:
     WALL = (0, 0, 0, 255)
     CELL = (255, 255, 255, 255)
 else:
     # inverted
     CELL = (0, 0, 0, 255)
     WALL = (255, 255, 255, 255)
-
-
-'''
-dimensions and cell sizes
-all measured in pixels
-'''
-size = 200
-cell_size = 3
 
 # declare global variables
 attempts = 4
@@ -45,6 +50,9 @@ maze = PIL.Image.new(mode="RGB", size=(size * cell_size + 1, size * cell_size + 
 
 # four cardinal directions
 directions = [(0, -1), (1, 0), (0, 1), (-1, 0)]
+
+def is_perimeter(x: int, y: int) -> bool:
+    return x == 0 or x * cell_size == size - 1 or y == 0 or y * cell_size == size - 1
 
 # draw a cell_size x cell_size 'pixel' (cell)
 def draw_pixel(i : int, j : int, c : tuple[int, ...]) -> None:
@@ -164,14 +172,17 @@ def create_gradient_bg() -> None:
     pixel_count = size * cell_size
     for col in range(pixel_count):
         for row in range(pixel_count):
-            maze.putpixel(
-                (col, row),
-                (
-                    int(normalize(col, pixel_count) * 255),
-                    int(normalize(row, pixel_count) * 255),
-                    int(normalize(255 - (row + col) * 0.5, 255) * 255)
+            if is_perimeter(col, row):
+                maze.putpixel((col, row), WALL)
+            else:
+                maze.putpixel(
+                    (col, row),
+                    (
+                        int(normalize(col, pixel_count) * 255),
+                        int(normalize(row, pixel_count) * 255),
+                        int(normalize(255 - (row + col) * 0.5, 255) * 255)
+                    )
                 )
-            )
         if (percent := int(100 * (col / pixel_count))) != int(100 * ((col - 1) / pixel_count)) and show_progress:
             print(f"{percent}%")
     if show_progress: print(r"100% - Finished background")
