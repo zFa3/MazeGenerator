@@ -1,4 +1,3 @@
-import cProfile
 import random
 import PIL.Image
 
@@ -213,7 +212,6 @@ if __name__ == "__main__":
     draw_grid()
     
     draw_maze()
-    # cProfile.run("draw_maze()")
 
     maze.show()
     
