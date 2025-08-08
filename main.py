@@ -7,27 +7,29 @@ import PIL.Image
 
 # TODO - Stitch together smaller mazes to create much larger mazes
 
+yes = ["yes", "y"]
+
 '''
-Progress does not accurately represent time remaining
-expect progress to slow as it reaches the end
+show progress is % based (as opposed to time based)
 '''
 show_progress = True
-create_background = True
+create_background = input("Create a color gradient background?\t:").lower() in yes
 
 '''
 generates some % of the maze, in case it takes too long
-100 for full maze generation
+100 for 100% maze generation
 '''
 fast_gen = 100
+
 # color theme
-dark_mode = True
+dark_mode = input("Dark mode?\t:").lower() in yes
 
 '''
 dimensions and cell sizes
 all measured in pixels
 '''
-size = 100
-cell_size = 3
+size = int(input("Enter the maze dimensions\t:"))
+cell_size = int(input("Enter each cell's dimensions\t:"))
 
 # colors
 if not dark_mode:
@@ -86,24 +88,14 @@ def find_empty_cell() -> tuple[int, ...]:
     # no empty spaces
     return (-1, -1)
 
-# return a random color
-def return_random_color() -> tuple[int, ...]:
-    rng = random.randint
-    return (rng(0, 255), rng(0, 255), rng(0, 255), 255)
-
 def remove_wall(x: int, y: int, direction: str, color: tuple[int, ...]) -> None:
-
     match direction:
-
         # case "up": erase_wall(x, y, 1, color)
         case 0: erase_wall(x, y, 1, color)
-
         # case "right": erase_wall(x + 1, y, 0, color)
         case 1: erase_wall(x + 1, y, 0, color)
-
         # case "down": erase_wall(x, y + 1, 1, color)
         case 2: erase_wall(x, y + 1, 1, color)
-
         # case "left": erase_wall(x, y, 0, color)
         case 3: erase_wall(x, y, 0, color)
 
@@ -112,24 +104,6 @@ def find_visited_cell() -> tuple[int, ...]:
     if len(visited) >= size ** 2:
         return (-1, -1)
     return random.choice(vis_l)
-
-# change a color by a slight amount
-def alter_color(color: tuple[int, ...], change: int) -> tuple[int, ...]:
-    # change varies from 1 -> size ^ 2
-    if (color[0] + color[1] + color[2] < 127):
-        return (
-            color[0] + (255 - color[0]) // change,
-            color[1] + (255 - color[1]) // change,
-            color[2] + (255 - color[2]) // change,
-            255
-        )
-    else:
-        return (
-            color[0] - color[0] // change,
-            color[1] - color[1] // change,
-            color[2] - color[2] // change,
-            255
-        )
 
 def DFS(start_cell: tuple[int, ...]) -> None:
     global visited; visited.add(start_cell)
@@ -160,15 +134,7 @@ def normalize(number, max_value, offset = 0) -> float:
     return (number + offset) / (max_value + offset)
 
 def create_gradient_bg() -> None:
-    '''
-    pixel_count = size * cell_size
-    for col in range(pixel_count):
-        for row in range(pixel_count):
-            maze.putpixel((col, row), (int(normalize(col, pixel_count) * 255), int(normalize(row, pixel_count) * 255), int(normalize(col * row / 2, pixel_count) * 255)))
-        if (percent := int(100 * (col / pixel_count))) != int(100 * ((col - 1) / pixel_count)) and show_progress:
-            print(f"{percent}%")
-    if show_progress: print(r"100% - Finished background")
-    '''
+    ''' creates a color gradient for the background '''
     pixel_count = size * cell_size
     for col in range(pixel_count):
         for row in range(pixel_count):
@@ -188,15 +154,11 @@ def create_gradient_bg() -> None:
     if show_progress: print(r"100% - Finished background")
 
 def draw_maze():
+    ''' main function, starts the random walk and outputs progress (% based not time based) '''
     previous = 0
-    
     DFS((0, 0))
     # loop random walks to create a maze
     while (empty_cell := find_visited_cell()) != (-1, -1):
-        '''
-        draw_pixel(0, 0, WALL)
-        remove_wall(0, 0, "right", (255, 0, 0, 255))
-        '''
         DFS(empty_cell)
 
         if show_progress and (percent := int(100 * len(visited)/size**2)) != previous:
@@ -207,23 +169,19 @@ def draw_maze():
 
 def save_image():
 
+    ''' save the image as a file '''
+
     response = input("save this image? (y/n)")
-    
     if response.lower() == "y":
-    
         maze.save(f"Mazes/maze ({size} - {cell_size}{" BG" if create_background else ""}).png")
 
 
 # run the program
 if __name__ == "__main__":
-
     if create_background:
         create_gradient_bg()
 
     draw_grid()
-    
     draw_maze()
-
     maze.show()
-    
     save_image()
